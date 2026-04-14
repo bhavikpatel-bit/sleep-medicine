@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — My Daily Link</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e; --surface2: #22223a;
+      --accent: #6c8eff; --accent-soft: rgba(108,142,255,0.12);
+      --text: #f0f0f5; --muted: rgba(240,240,245,0.45);
+      --border: rgba(240,240,245,0.08); --danger: #ff6b6b;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem 1.5rem; }
+    .header { max-width: 700px; margin: 0 auto 2.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'DM Serif Display', serif; font-size: 22px; }
+    .logo span { color: var(--accent); }
+    .badge { font-size: 11px; padding: 4px 10px; background: var(--accent-soft); color: var(--accent); border-radius: 20px; font-weight: 500; }
+    .main { max-width: 700px; margin: 0 auto; }
+    h2 { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 6px; }
+    .sub { font-size: 14px; color: var(--muted); margin-bottom: 2rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+    .card-title { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+    .form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    input[type="text"], input[type="time"] {
+      flex: 1; min-width: 140px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 14px; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: border-color 0.15s;
+    }
+    input[type="time"] { flex: 0 0 auto; min-width: unset; width: 130px; }
+    input:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--muted); }
+    input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+    .settings-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; }
+    .settings-label { font-size: 14px; }
+    .settings-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .btn { padding: 10px 18px; border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; border: none; transition: opacity 0.15s, transform 0.1s; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-ghost { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--text); }
+    .btn-danger { background: rgba(255,107,107,0.12); color: var(--danger); border: 1px solid rgba(255,107,107,0.2); }
+    .btn-sm { padding: 7px 13px; font-size: 13px; }
+    .members-list { display: flex; flex-direction: column; gap: 10px; }
+    .member-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.4rem; }
+    .member-top { display: flex; align-items: center; gap: 14px; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 13px; flex-shrink: 0; }
+    .member-meta { flex: 1; min-width: 0; }
+    .member-name { font-size: 15px; font-weight: 500; }
+    .member-link-display { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .member-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .pwa-link-row { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .pwa-link-box { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 11px; color: var(--accent); word-break: break-all; font-family: monospace; }
+    .copy-btn { font-size: 12px; padding: 7px 12px; background: var(--accent-soft); color: var(--accent); border: 1px solid rgba(108,142,255,0.2); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap; flex-shrink: 0; }
+    .copy-btn:hover { background: rgba(108,142,255,0.22); }
+    .edit-row { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); gap: 8px; flex-wrap: wrap; }
+    .edit-row.open { display: flex; }
+    .edit-row input { flex: 1; min-width: 200px; }
+    .empty { text-align: center; color: var(--muted); padding: 3rem; font-size: 14px; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--surface); border: 1px solid rgba(240,240,245,0.15); border-radius: 10px; padding: 10px 20px; font-size: 13px; display: none; z-index: 99; white-space: nowrap; }
+    .toast.show { display: block; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp { from { opacity:0; transform: translate(-50%,8px); } to { opacity:1; transform: translate(-50%,0); } }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">My Daily <span>Link</span></div>
+  <span class="badge">Admin</span>
+</div>
+
+<div class="main">
+
+  <div class="card">
+    <p class="card-title">Notification settings</p>
+    <div class="settings-row">
+      <div>
+        <div class="settings-label">Daily notification time</div>
+        <div class="settings-desc">Members are notified at this time every day</div>
+      </div>
+      <input type="time" id="notif-time" value="09:00" />
+    </div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-label">Notification message</div>
+        <div class="settings-desc">Body text members see in the push notification</div>
+      </div>
+      <input type="text" id="notif-message" placeholder="Your daily link is here" style="max-width:260px;" />
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save settings</button>
+  </div>
+
+  <h2>Members</h2>
+  <p class="sub">Add members and assign each person their own link. Copy their unique URL and send it once via Spruce.</p>
+
+  <div class="card">
+    <p class="card-title">Add member</p>
+    <div class="form-row">
+      <input type="text" id="new-name" placeholder="Member name" />
+      <input type="text" id="new-link" placeholder="https://their-link.com" />
+      <button class="btn btn-primary" onclick="addMember()">Add</button>
+    </div>
+  </div>
+
+  <div class="members-list" id="members-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // Works for both:
+  // - root domain:    https://username.github.io/
+  // - project repo:   https://username.github.io/reponame/
+  const PAGE_BASE = window.location.href.replace('admin.html', '');
+
+  let members = JSON.parse(localStorage.getItem('mdl-members') || '[]');
+  let settings = JSON.parse(localStorage.getItem('mdl-settings') || '{"time":"09:00","message":"Your daily link is here"}');
+
+  document.getElementById('notif-time').value = settings.time || '09:00';
+  document.getElementById('notif-message').value = settings.message || 'Your daily link is here';
+
+  function saveSettings() {
+    settings.time = document.getElementById('notif-time').value || '09:00';
+    settings.message = document.getElementById('notif-message').value.trim() || 'Your daily link is here';
+    localStorage.setItem('mdl-settings', JSON.stringify(settings));
+    render();
+    toast('Settings saved');
+  }
+
+  function save() { localStorage.setItem('mdl-members', JSON.stringify(members)); }
+
+  function initials(name) {
+    return name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  function ensureHttps(url) {
+    if (!url) return '';
+    return url.startsWith('http') ? url : 'https://' + url;
+  }
+
+  function pwaURL(member) {
+    const [h, m] = (settings.time || '09:00').split(':');
+    const params = new URLSearchParams({
+      member: member.id,
+      link:   member.link || '',
+      hour:   h || '9',
+      min:    m || '0',
+      msg:    settings.message || 'Your daily link is here'
+    });
+    return `${PAGE_BASE}index.html?${params.toString()}`;
+  }
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function render() {
+    const list = document.getElementById('members-list');
+    list.innerHTML = '';
+    if (!members.length) {
+      list.innerHTML = '<div class="empty">No members yet. Add one above.</div>';
+      return;
+    }
+    members.forEach(m => {
+      const card = document.createElement('div');
+      card.className = 'member-card';
+      card.innerHTML = `
+        <div class="member-top">
+          <div class="avatar">${initials(m.name)}</div>
+          <div class="member-meta">
+            <div class="member-name">${m.name}</div>
+            <div class="member-link-display">${m.link || 'No link set'}</div>
+          </div>
+          <div class="member-actions">
+            <button class="btn btn-ghost btn-sm" onclick="toggleEdit('${m.id}')">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="removeMember('${m.id}')">Remove</button>
+          </div>
+        </div>
+        <div class="edit-row" id="edit-${m.id}">
+          <input type="text" id="link-input-${m.id}" value="${m.link || ''}" placeholder="https://new-link.com" />
+          <button class="btn btn-primary btn-sm" onclick="saveLink('${m.id}')">Save</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleEdit('${m.id}')">Cancel</button>
+        </div>
+        <div class="pwa-link-row">
+          <div class="pwa-link-box" id="pwa-url-${m.id}">${pwaURL(m)}</div>
+          <button class="copy-btn" onclick="copyURL('${m.id}')">Copy link</button>
+        </div>`;
+      list.appendChild(card);
+    });
+  }
+
+  function addMember() {
+    const name = document.getElementById('new-name').value.trim();
+    const link = ensureHttps(document.getElementById('new-link').value.trim());
+    if (!name) { toast('Please enter a name'); return; }
+    members.push({ id: Date.now().toString(), name, link });
+    save(); render();
+    document.getElementById('new-name').value = '';
+    document.getElementById('new-link').value = '';
+    toast(`${name} added`);
+  }
+
+  function removeMember(id) {
+    members = members.filter(m => m.id !== id);
+    save(); render();
+    toast('Member removed');
+  }
+
+  function toggleEdit(id) {
+    document.getElementById(`edit-${id}`).classList.toggle('open');
+  }
+
+  function saveLink(id) {
+    const val = ensureHttps(document.getElementById(`link-input-${id}`).value.trim());
+    const m = members.find(m => m.id === id);
+    if (m) { m.link = val; save(); render(); toast('Link updated'); }
+  }
+
+  function copyURL(id) {
+    const m = members.find(m => m.id === id);
+    if (!m) return;
+    navigator.clipboard.writeText(pwaURL(m)).then(() => toast('Copied!'));
+  }
+
+  render();
+</script>
+</body>
+</html>
