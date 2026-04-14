@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f0f1a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="My Daily Link" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>My Daily Link</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e;
+      --accent: #6c8eff; --accent-soft: rgba(108,142,255,0.12);
+      --text: #f0f0f5; --muted: rgba(240,240,245,0.45);
+      --border: rgba(240,240,245,0.08);
+    }
+    html, body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; padding: 0; margin: 0;
+    }
+    .top {
+      padding: 1.5rem 1.5rem 0;
+      max-width: 680px; margin: 0 auto;
+      animation: fadeUp 0.5s ease both;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+    .logo-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem; }
+    .logo-icon {
+      width: 40px; height: 40px; background: var(--accent-soft);
+      border: 1px solid rgba(108,142,255,0.3); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .logo-icon svg { width: 20px; height: 20px; }
+    .logo-name { font-family: 'DM Serif Display', serif; font-size: 19px; }
+
+    .greeting-row { margin-bottom: 1.25rem; }
+    .greeting { font-size: 12px; color: var(--muted); font-weight: 300; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+    .headline { font-family: 'DM Serif Display', serif; font-size: 26px; line-height: 1.2; }
+
+    /* JotForm container */
+    .form-wrap {
+      max-width: 680px; margin: 1rem auto 0;
+      padding: 0 1.5rem 2rem;
+      animation: fadeUp 0.5s ease 0.1s both;
+    }
+
+    /* Notification card */
+    .notif-card {
+      max-width: 680px; margin: 0 auto;
+      padding: 0 1.5rem 1rem;
+      animation: fadeUp 0.5s ease 0.2s both;
+    }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem 1.5rem; }
+    .card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 10px; font-weight: 500; }
+    .notif-row { display: flex; align-items: center; gap: 12px; }
+    .notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    .notif-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .notif-text strong { color: var(--text); font-weight: 500; }
+    .enable-btn {
+      margin-top: 12px; width: 100%; background: var(--accent-soft); color: var(--accent);
+      border: 1px solid rgba(108,142,255,0.25); border-radius: 10px; padding: 11px;
+      font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer;
+    }
+    .enable-btn:hover { background: rgba(108,142,255,0.2); }
+    .ios-tip {
+      display: none; margin-top: 10px; background: rgba(255,200,80,0.08);
+      border: 1px solid rgba(255,200,80,0.2); border-radius: 10px;
+      padding: 10px 14px; font-size: 12px; color: rgba(255,200,80,0.9); line-height: 1.6;
+    }
+    .notif-granted { display: none; align-items: center; gap: 6px; font-size: 12px; color: #5dca90; margin-top: 10px; }
+    .notif-granted.show { display: flex; }
+    .notif-granted .dot { width: 6px; height: 6px; border-radius: 50%; background: #5dca90; }
+
+    .footer { text-align: center; font-size: 11px; color: var(--muted); padding: 0 0 2rem; }
+
+    /* Make JotForm blend into dark theme */
+    .jotform-wrap { border-radius: 16px; overflow: hidden; }
+  </style>
+</head>
+<body>
+
+  <div class="top">
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#6c8eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+      </div>
+      <span class="logo-name">My Daily Link</span>
+    </div>
+    <div class="greeting-row">
+      <p class="greeting" id="time-greeting">Good morning</p>
+      <h1 class="headline">Your form<br>is ready.</h1>
+    </div>
+  </div>
+
+  <!-- JotForm embedded directly -->
+  <div class="form-wrap">
+    <div class="jotform-wrap" id="jotform-container">
+      <script type="text/javascript" src="https://form.jotform.com/jsform/260975559818072"></script>
+    </div>
+  </div>
+
+  <!-- Notification card -->
+  <div class="notif-card">
+    <div class="card">
+      <p class="card-label">Daily notifications</p>
+      <div class="notif-row">
+        <div class="notif-dot"></div>
+        <p class="notif-text">Get notified at <strong id="notif-time-display">9:00 AM</strong> every day.</p>
+      </div>
+      <button class="enable-btn" id="notif-btn" onclick="requestNotifications()">Enable daily notifications</button>
+      <div class="notif-granted" id="notif-status"><div class="dot"></div> Notifications enabled</div>
+      <div class="ios-tip" id="ios-tip">
+        On iPhone: tap <strong>Share</strong> in Safari → <strong>"Add to Home Screen"</strong> — then open the app from your home screen to enable notifications.
+      </div>
+    </div>
+  </div>
+
+  <p class="footer" style="margin-top:1rem;">My Daily Link &nbsp;·&nbsp; Sent with care</p>
+
+<script>
+  // Read URL params
+  const p = new URLSearchParams(location.search);
+  const notifHour = parseInt(p.get('hour') || '9', 10);
+  const notifMin  = parseInt(p.get('min')  || '0', 10);
+  const notifMsg  = p.get('msg') || 'Your daily link is here';
+
+  // Display notification time
+  const dh = notifHour % 12 || 12;
+  const dm = String(notifMin).padStart(2, '0');
+  const ap = notifHour < 12 ? 'AM' : 'PM';
+  document.getElementById('notif-time-display').textContent = `${dh}:${dm} ${ap}`;
+
+  // Greeting
+  const hr = new Date().getHours();
+  document.getElementById('time-greeting').textContent =
+    hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+
+  // Service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  // Notification helpers
+  function isIOS() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+  function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || !!navigator.standalone;
+  }
+
+  function updateNotifUI() {
+    if (!('Notification' in window)) { document.getElementById('notif-btn').style.display = 'none'; return; }
+    if (Notification.permission === 'granted') {
+      document.getElementById('notif-btn').style.display = 'none';
+      document.getElementById('notif-status').classList.add('show');
+    }
+  }
+
+  async function requestNotifications() {
+    if (isIOS() && !isStandalone()) {
+      document.getElementById('ios-tip').style.display = 'block';
+      return;
+    }
+    if (!('Notification' in window)) return;
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') { updateNotifUI(); scheduleNotif(); }
+  }
+
+  function scheduleNotif() {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const now = new Date(), next = new Date();
+    next.setHours(notifHour, notifMin, 0, 0);
+    if (next <= now) next.setDate(next.getDate() + 1);
+    setTimeout(() => {
+      new Notification('My Daily Link', { body: notifMsg, icon: 'icons/icon-192.png' });
+      scheduleNotif();
+    }, next - now);
+  }
+
+  updateNotifUI();
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') scheduleNotif();
+</script>
+</body>
+</html>
