@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f0f1a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="My Daily Link" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>My Daily Link</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a; --surface: #1a1a2e;
+      --accent: #6c8eff; --accent-soft: rgba(108,142,255,0.12);
+      --text: #f0f0f5; --muted: rgba(240,240,245,0.45);
+      --border: rgba(240,240,245,0.08);
+    }
+    html, body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; padding: 0; margin: 0;
+    }
+    .top {
+      padding: 1.5rem 1.5rem 0;
+      max-width: 680px; margin: 0 auto;
+      animation: fadeUp 0.5s ease both;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+    .logo-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem; }
+    .logo-icon {
+      width: 40px; height: 40px; background: var(--accent-soft);
+      border: 1px solid rgba(108,142,255,0.3); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .logo-icon svg { width: 20px; height: 20px; }
+    .logo-name { font-family: 'DM Serif Display', serif; font-size: 19px; }
+
+    .greeting-row { margin-bottom: 1.25rem; }
+    .greeting { font-size: 12px; color: var(--muted); font-weight: 300; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+    .headline { font-family: 'DM Serif Display', serif; font-size: 26px; line-height: 1.2; }
+
+    .form-wrap {
+      max-width: 680px; margin: 1rem auto 0;
+      padding: 0 1.5rem 1.5rem;
+      animation: fadeUp 0.5s ease 0.1s both;
+    }
+    .jotform-wrap { border-radius: 16px; overflow: hidden; }
+
+    /* Notification card */
+    .notif-card {
+      max-width: 680px; margin: 0 auto;
+      padding: 0 1.5rem 1rem;
+      animation: fadeUp 0.5s ease 0.2s both;
+    }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem 1.5rem; }
+    .card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 12px; font-weight: 500; }
+
+    /* Time picker row */
+    .time-row {
+      display: flex; align-items: center; gap: 10px;
+      flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .time-row label { font-size: 13px; color: var(--muted); flex-shrink: 0; }
+    input[type="time"] {
+      background: rgba(108,142,255,0.08); border: 1px solid rgba(108,142,255,0.25);
+      border-radius: 10px; padding: 8px 12px; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+      outline: none; cursor: pointer; transition: border-color 0.15s;
+    }
+    input[type="time"]:focus { border-color: var(--accent); }
+    input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+
+    .save-time-btn {
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 10px; padding: 8px 16px; font-size: 13px;
+      font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .save-time-btn:hover { opacity: 0.88; }
+
+    .notif-status-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+    .notif-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+    .notif-dot.active { background: #5dca90; }
+    .notif-status-text { font-size: 13px; color: var(--muted); }
+    .notif-status-text span { color: var(--text); font-weight: 500; }
+
+    .enable-btn {
+      width: 100%; background: var(--accent-soft); color: var(--accent);
+      border: 1px solid rgba(108,142,255,0.25); border-radius: 10px; padding: 11px;
+      font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .enable-btn:hover { background: rgba(108,142,255,0.2); }
+
+    .ios-tip {
+      display: none; margin-top: 10px; background: rgba(255,200,80,0.08);
+      border: 1px solid rgba(255,200,80,0.2); border-radius: 10px;
+      padding: 10px 14px; font-size: 12px; color: rgba(255,200,80,0.9); line-height: 1.6;
+    }
+
+    .saved-toast {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; color: #5dca90; margin-left: 6px;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .saved-toast.show { opacity: 1; }
+
+    .footer { text-align: center; font-size: 11px; color: var(--muted); padding: 0.5rem 0 2rem; }
+  </style>
+</head>
+<body>
+
+  <div class="top">
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#6c8eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+      </div>
+      <span class="logo-name">My Daily Link</span>
+    </div>
+    <div class="greeting-row">
+      <p class="greeting" id="time-greeting">Good morning</p>
+      <h1 class="headline">Your form<br>is ready.</h1>
+    </div>
+  </div>
+
+  <!-- JotForm embedded directly -->
+  <div class="form-wrap">
+    <div class="jotform-wrap">
+      <script type="text/javascript" src="https://form.jotform.com/jsform/260975559818072"></script>
+    </div>
+  </div>
+
+  <!-- Notification card -->
+  <div class="notif-card">
+    <div class="card">
+      <p class="card-label">Daily reminder</p>
+
+      <!-- Current status -->
+      <div class="notif-status-row">
+        <div class="notif-dot" id="notif-dot"></div>
+        <p class="notif-status-text" id="notif-status-text">Notifications not yet enabled</p>
+      </div>
+
+      <!-- Time picker — shown once notifications are granted -->
+      <div id="time-picker-row" class="time-row" style="display:none;">
+        <label>Remind me at</label>
+        <input type="time" id="notif-time-input" value="09:00" />
+        <button class="save-time-btn" onclick="saveTime()">Save</button>
+        <span class="saved-toast" id="saved-toast">&#10003; Saved</span>
+      </div>
+
+      <!-- Enable button — shown when not yet granted -->
+      <button class="enable-btn" id="notif-btn" onclick="requestNotifications()">Enable daily reminder</button>
+      <div class="ios-tip" id="ios-tip">
+        On iPhone: tap <strong>Share</strong> in Safari → <strong>"Add to Home Screen"</strong> — then open from your home screen to enable notifications.
+      </div>
+    </div>
+  </div>
+
+  <p class="footer">My Daily Link &nbsp;·&nbsp; Sent with care</p>
+
+<script>
+  // ── URL params (admin defaults) ───────────────────────────────
+  const p = new URLSearchParams(location.search);
+  const adminHour = parseInt(p.get('hour') || '9', 10);
+  const adminMin  = parseInt(p.get('min')  || '0', 10);
+  const notifMsg  = p.get('msg') || 'Your daily link is here';
+  const memberId  = p.get('member') || 'default';
+
+  // ── Storage key per member ────────────────────────────────────
+  const STORAGE_KEY = `mdl-notif-time-${memberId}`;
+
+  // Load saved time preference, fall back to admin default
+  function loadSavedTime() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const [h, m] = saved.split(':');
+      return { hour: parseInt(h, 10), min: parseInt(m, 10), raw: saved };
+    }
+    const raw = `${String(adminHour).padStart(2,'0')}:${String(adminMin).padStart(2,'0')}`;
+    return { hour: adminHour, min: adminMin, raw };
+  }
+
+  function formatTime(hour, min) {
+    const dh = hour % 12 || 12;
+    const dm = String(min).padStart(2, '0');
+    const ap = hour < 12 ? 'AM' : 'PM';
+    return `${dh}:${dm} ${ap}`;
+  }
+
+  // ── Greeting ──────────────────────────────────────────────────
+  const hr = new Date().getHours();
+  document.getElementById('time-greeting').textContent =
+    hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+
+  // ── Update UI based on notification permission ─────────────────
+  function updateNotifUI() {
+    const dot  = document.getElementById('notif-dot');
+    const text = document.getElementById('notif-status-text');
+    const btn  = document.getElementById('notif-btn');
+    const picker = document.getElementById('time-picker-row');
+
+    if (!('Notification' in window)) {
+      text.innerHTML = 'Notifications not supported on this browser';
+      btn.style.display = 'none';
+      return;
+    }
+
+    if (Notification.permission === 'granted') {
+      const { hour, min, raw } = loadSavedTime();
+      dot.classList.add('active');
+      text.innerHTML = `Reminder set for <span>${formatTime(hour, min)}</span> every day`;
+      btn.style.display = 'none';
+      picker.style.display = 'flex';
+      document.getElementById('notif-time-input').value = raw;
+      scheduleNotif(hour, min);
+    } else {
+      dot.classList.remove('active');
+      text.textContent = 'Enable to get a daily reminder';
+      btn.style.display = 'block';
+      picker.style.display = 'none';
+    }
+  }
+
+  // ── Request permission ────────────────────────────────────────
+  function isIOS() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+  function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || !!navigator.standalone;
+  }
+
+  async function requestNotifications() {
+    if (isIOS() && !isStandalone()) {
+      document.getElementById('ios-tip').style.display = 'block';
+      return;
+    }
+    if (!('Notification' in window)) return;
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') updateNotifUI();
+  }
+
+  // ── Save chosen time ──────────────────────────────────────────
+  function saveTime() {
+    const val = document.getElementById('notif-time-input').value;
+    if (!val) return;
+    localStorage.setItem(STORAGE_KEY, val);
+    const [h, m] = val.split(':');
+    const hour = parseInt(h, 10), min = parseInt(m, 10);
+
+    // Update status text
+    document.getElementById('notif-status-text').innerHTML =
+      `Reminder set for <span>${formatTime(hour, min)}</span> every day`;
+
+    // Show saved confirmation
+    const toast = document.getElementById('saved-toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+
+    // Reschedule
+    scheduleNotif(hour, min);
+  }
+
+  // ── Schedule notification ─────────────────────────────────────
+  let notifTimer = null;
+  function scheduleNotif(hour, min) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (notifTimer) clearTimeout(notifTimer);
+    const now = new Date(), next = new Date();
+    next.setHours(hour, min, 0, 0);
+    if (next <= now) next.setDate(next.getDate() + 1);
+    notifTimer = setTimeout(() => {
+      new Notification('My Daily Link', { body: notifMsg, icon: 'icons/icon-192.png' });
+      scheduleNotif(hour, min);
+    }, next - now);
+  }
+
+  // ── Service worker ────────────────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  updateNotifUI();
+</script>
+</body>
+</html>
